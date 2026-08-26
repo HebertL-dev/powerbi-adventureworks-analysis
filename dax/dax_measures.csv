@@ -1,0 +1,249 @@
+Name,Expression,Description
+"Full Name (Customer Detail)","
+IF(
+    HASONEVALUE(
+        'Customer Lookup'[CustomerKey]
+    ),
+    MAX(
+        'Customer Lookup'[Full Name]
+    ),
+    ""Multiple Customers""
+)",""
+"Order Quantity","
+SUM(
+    'Sales Data'[OrderQuantity]
+)",""
+"Quantity Returned","
+SUM(
+    'Returns Data'[ReturnQuantity]
+)",""
+"Quantity Sold","
+SUM(
+    'Sales Data'[OrderQuantity]
+)",""
+"Average Retail Price","
+AVERAGE(
+    'Product Lookup'[ProductPrice]
+)",""
+"Total Returns","
+COUNT(
+    'Returns Data'[ReturnQuantity]
+)",""
+"Total Orders","
+DISTINCTCOUNT(
+    'Sales Data'[OrderNumber]
+)",""
+"Total Customers","
+DISTINCTCOUNT(
+    'Sales Data'[CustomerKey]
+    )",""
+"Return Rate","
+ DIVIDE(
+    [Quantity Returned],
+    [Quantity Sold],
+    ""No Sales""
+ )",""
+"Bulk Orders","
+CALCULATE(
+    [Total Orders],
+    'Sales Data'[OrderQuantity]
+)",""
+"Weekend Orders","
+CALCULATE(
+    [Total Orders],
+    'Calendar Lookup'[Weekend] = ""Weekend""
+)",""
+"Bike Returns","
+CALCULATE(
+    [Total Returns],
+    'Product Categories Lookup'[CategoryName] = ""Bikes""
+)",""
+"Bike Sales","
+CALCULATE(
+    [Quantity Sold],
+    'Product Categories Lookup'[CategoryName] = ""Bikes""
+)",""
+"Bike Return Rate","
+CALCULATE(
+    [Return Rate],
+    'Product Categories Lookup'[CategoryName] = ""Bikes""
+)",""
+"All Orders","
+CALCULATE(
+    [Total Orders],
+    ALL(
+        'Sales Data'
+    )
+)",""
+"% of all orders","
+DIVIDE(
+    [Total Orders],
+    [All Orders]
+)",""
+"Overall Retail Price","
+CALCULATE(
+    [Average Retail Price],
+    ALL(
+        'Product Lookup'
+    )
+)",""
+"All Returns","
+CALCULATE(
+    [Total Returns],
+    ALL(
+        'Returns Data'
+    )
+)",""
+"% of all returns","
+DIVIDE(
+    [Total Returns],
+    [All Returns]
+)",""
+"High Ticket Orders","
+CALCULATE(
+    [Total Orders],
+    FILTER(
+        'Product Lookup',
+        'Product Lookup'[ProductPrice] > [Overall Retail Price]
+    )
+)",""
+"Total Revenue","
+SUMX(
+    'Sales Data',
+    'Sales Data'[OrderQuantity] * 
+    RELATED(
+        'Product Lookup'[ProductPrice]
+    )
+)",""
+"Average Revenue Per Customer","
+DIVIDE(
+    [Total Revenue],
+    [Total Customers]
+)",""
+"Total Cost","
+SUMX(
+    'Sales Data',
+    'Sales Data'[OrderQuantity] *
+    RELATED(
+        'Product Lookup'[ProductCost]
+    )
+)",""
+"Total Profit","
+[Total Revenue] - [Total Cost]",""
+"Previous Month Orders","
+CALCULATE(
+    [Total Orders],
+    DATEADD(
+        'Calendar Lookup'[Date],
+        -1,
+        MONTH
+    )
+)",""
+"Previous Month Profit","
+CALCULATE(
+    [Total Profit],
+    DATEADD(
+        'Calendar Lookup'[Date],
+        -1,
+        MONTH
+    )
+)",""
+"Previous Month Returns","
+CALCULATE(
+    [Total Returns],
+    DATEADD(
+        'Calendar Lookup'[Date],
+        -1,
+        MONTH)
+)",""
+"Previous Month Revenue","
+CALCULATE(
+    [Total Revenue],
+    DATEADD(
+        'Calendar Lookup'[Date],
+        -1,
+        MONTH
+    )
+)",""
+"Total Orders (Customer Detail)","
+IF(
+    HASONEVALUE(
+        'Customer Lookup'[CustomerKey]
+    ),
+    [Total Orders],
+    ""-""
+)",""
+"Total Revenue (Customer Detail)","
+IF(
+    HASONEVALUE(
+        'Customer Lookup'[CustomerKey]
+    ),
+    [Total Revenue],
+    ""-""
+)",""
+"10-Day Rolling Revenue","
+CALCULATE(
+    [Total Revenue],
+    DATESINPERIOD(
+        'Calendar Lookup'[Date],
+        MAX(
+            'Calendar Lookup'[Date]),
+            -10,
+            DAY)
+)",""
+"YTD Revenue","
+CALCULATE(
+    [Total Revenue],
+    DATESYTD(
+        'Calendar Lookup'[Date])
+)",""
+"Order Target","
+[Previous Month Orders] * 1.1",""
+"Profit Target","
+[Previous Month Profit] * 1.1",""
+"90-Day Rolling Profit","
+CALCULATE(
+    [Total Profit],
+    DATESINPERIOD(
+        'Calendar Lookup'[Date],
+        MAX(
+            'Calendar Lookup'[Date]),
+            -90,
+            DAY
+    )
+)",""
+"Revenue Target","
+[Previous Month Revenue] * 1.1",""
+"Order Target Gap","[Total Orders] - [Order Target]",""
+"Revenue Target Gap","[Total Revenue] - [Revenue Target]",""
+"Profit Target Gap","[Total Profit] - [Profit Target]",""
+"Adjusted Price","[Average Retail Price] * (1 + 'Price Adjustment (%)'[Price Adjustment (%) Value])",""
+"Adjusted Revenue","
+SUMX(
+    'Sales Data',
+    'Sales Data'[OrderQuantity]  
+    *
+    [Adjusted Price]
+)",""
+"Adjusted Profit","
+[Adjusted Revenue] - [Total Cost]",""
+"Dynamic Line Color","
+SWITCH(
+SELECTEDVALUE('Product Metric Selection'[Product Metric Selection Order]),
+0, ""#333333"", // Orders
+1, ""#333333"", // Revenue
+2, ""#333333"", // Profit
+3, ""#E53E3E"", // Returns (Highlights in Red)
+4, ""#E53E3E"", // Return %
+""#808080"" // Fallback Gray
+)",""
+"Customer Metric Color","
+SWITCH(
+    SELECTEDVALUE(
+        'Customer Metric Selection'[Customer Metric Selection Order]
+    ),
+    0, ""#2F2F2F"",
+    1, ""#19D3D3"",
+    ""#2F2F2F""
+)",""
+"Price Adjustment (%) Value","SELECTEDVALUE('Price Adjustment (%)'[Price Adjustment (%)], 0)",""
